@@ -1,6 +1,5 @@
 <template>
   <div id="app">
-    <div class="left"></div>
     <router-view></router-view>
   </div>
 </template>
@@ -16,10 +15,6 @@ export default class App extends Vue {}
 body {
   margin: 0;
   padding: 0;
-}
-.left {
-  float: left;
-  height: 100vh;
-  width: 200px;
+  background-color: #f4f5f8;
 }
 </style>
