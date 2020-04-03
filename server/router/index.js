@@ -27,6 +27,7 @@ module.exports = app => {
     }
     return arr
   }
+
   router.get('/bills', async (req, res) => {
     const billPath = path.resolve(__dirname, './../static/bill.csv');
     fs.readFile(billPath, function(err, fileData) {
@@ -54,6 +55,20 @@ module.exports = app => {
       }
       const data = tableToArrayObject(table[0], table)
       res.send(data)
+    })
+  })
+
+  router.post('/bill', async (req, res) => {
+    const billPath = path.resolve(__dirname, './../static/bill.csv');
+    fs.readFile(billPath, function(err, fileData) {
+      if (err) res.send(err);
+      fileData = fileData.toString();
+      const { type, time, category, amount } = req.body
+        const newFileData = `${fileData}\r\n${type},${time},${category},${amount}`
+        fs.writeFile(billPath, newFileData, function(err) {
+          if (err) res.send(err)
+          res.send('success')
+        })
     })
   })
   app.use('/api', router)
