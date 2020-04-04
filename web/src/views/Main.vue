@@ -111,6 +111,11 @@
       return this.inCome - this.outCome;
     }
     /* -----------------方法------------------- */
+    /**
+     * @description: 选择具体月份后的钩子函数，对表格数据进行过滤
+     * @param {v: Date} 选择的月份=>时间戳
+     * @return: objAmount[] :表格数据
+     */
     handleTable(v: Date) {
       if (v === null) {
         return (this.showTableData = this.tableData);
@@ -125,6 +130,9 @@
         return this.formatDate(item).indexOf(yearMon) !== -1;
       });
     }
+    /**
+     * @description: 表单验证函数，验证通过触发addAmount添加表单
+     */
     validateForm(form: any): void {
       let ref: any = this.$refs[form];
       ref.validate((valid: Boolean) => {
@@ -135,7 +143,9 @@
         }
       });
     }
-
+    /**
+     * @description: 表单数据添加
+     */
     async addAmount() {
       const res = await this.$http.post("bill", this.form)
       if (res.data === 'success') {
@@ -153,13 +163,19 @@
       }
       this.dialogFormVisible = false;
     }
-    /* -----------------获取属性------------------- */
+    /* -----------------获取属性方法------------------- */
+    /**
+     * @description: 获取账单表格数据
+     */
     async fetchTableData() {
       const resTable = await this.$http.get("bills");
       this.tableData = resTable.data;
       this.showTableData = resTable.data;
     }
 
+    /**
+     * @description: 获取账单分类数据
+     */
     async fetchCategoryData() {
       const resCategories = await this.$http.get("categories");
       this.categroyData = resCategories.data;
@@ -170,14 +186,25 @@
       this.fetchCategoryData();
     }
     /* -----------------格式化------------------- */
+    /**
+     * @description: 格式化表格中账单类型
+     */
     formatType(row: objAmount) {
       return row.type === "1" ? "收入" : "支出";
     }
+
+    /**
+     * @description: 格式化表格中账单分类
+     */
     formatCategory(row: objAmount) {
       if (this.categroyData.length !== 0) {
         return this.categroyData.filter(v => v.id === row.category)[0].name;
       }
     }
+
+    /**
+     * @description: 格式化表格中账单时间
+     */
     formatDate(row: objAmount) {
       const date = new Date(parseInt(row.time));
       const yyyy = date.getFullYear();
