@@ -5,36 +5,9 @@
     </h1>
     <section>
       <div class="card-box">
-        <el-card class="card income">
-          <div class="icon-box">
-            <i class="iconfont" style="font-size: 70px;font-weight: 500;">&#xe65c;</i>
-            <div class="money-box">
-              收入:
-              <div class="money">{{ inCome }}</div>
-              ￥
-            </div>
-          </div>
-        </el-card>
-        <el-card class="card outcome">
-          <div class="icon-box">
-            <i class="iconfont" style="font-size: 70px;font-weight: 500;">&#xe666;</i>
-            <div class="money-box">
-              支出:
-              <div class="money">{{ outCome }}</div>
-              ￥
-            </div>
-          </div>
-        </el-card>
-        <el-card class="card all">
-          <div class="icon-box">
-            <i class="iconfont" style="font-size: 70px;font-weight: 500;">&#xe687;</i>
-            <div class="money-box">
-              总计:
-              <div class="money">{{ allCome }}</div>
-              ￥
-            </div>
-          </div>
-        </el-card>
+        <qb-card type="inCome" :value="inCome"></qb-card>
+        <qb-card type="outCome" :value="outCome"></qb-card>
+        <qb-card type="allCome" :value="allCome"></qb-card>
       </div>
       <div class="pick">
         月份选择：
@@ -81,6 +54,7 @@
 
 <script lang="ts">
   import { Vue, Component } from "vue-property-decorator";
+  import Card from "@/components/Card.vue"
   interface objAmount {
     type: string;
     time: string;
@@ -92,8 +66,14 @@
     type: string;
     name: string;
   }
-  @Component({})
+  @Component({
+    name: "Main",
+    components:{
+      'qb-card': Card
+    }
+  })
   export default class Main extends Vue {
+    /* -----------------属性------------------- */
     tableData: objAmount[] = [];
     showTableData: objAmount[] = [];
     categroyData: objCategory[] = [];
@@ -105,7 +85,7 @@
       category: "",
       amount: ""
     };
-
+    /* -----------------计算属性------------------- */
     get inCome(): number {
       const inComeArr = this.showTableData.filter(v => v.type === "1");
       return inComeArr.reduce((pre, cur) => pre + parseInt(cur.amount), 0);
@@ -124,7 +104,7 @@
     get allCome(): number {
       return this.inCome - this.outCome;
     }
-
+  /* -----------------方法------------------- */
     handleTable(v: Date) {
       if (v === null) {
         return (this.showTableData = this.tableData);
@@ -157,7 +137,7 @@
         }
       this.dialogFormVisible = false;
     }
-
+  /* -----------------获取属性------------------- */
     async fetchTableData() {
       const resTable = await this.$http.get("bills");
       this.tableData = resTable.data;
@@ -173,6 +153,7 @@
       this.fetchTableData();
       this.fetchCategoryData();
     }
+    /* -----------------格式化------------------- */
     formatType(row: objAmount) {
       return row.type === "1" ? "收入" : "支出";
     }
@@ -224,80 +205,6 @@
     overflow: hidden;
     font-size: 22px;
     color: #333;
-  }
-
-  .card {
-    float: left;
-    width: 310px;
-    height: 80px;
-    position: relative;
-  }
-
-  .card+.outcome {
-    margin: 0 38px;
-  }
-
-  .icon-box {
-    width: 80px;
-    color: #fff;
-    height: 80px;
-    position: absolute;
-    top: 0%;
-    left: 0%;
-    border-radius: 4px 0 0 4px;
-    text-align: center;
-  }
-
-  .income {
-    background-color: #37bc9b;
-  }
-
-  .income .icon-box {
-    background-color: #2b957a;
-  }
-
-  .outcome {
-    background-color: #ff902b;
-  }
-
-  .outcome .icon-box {
-    background-color: #d65f00;
-  }
-
-  .all {
-    background-color: #5d9cec;
-  }
-
-  .all .icon-box {
-    background-color: #2f80e7;
-  }
-
-  .money-box {
-    position: absolute;
-    width: 229px;
-    height: 80px;
-    line-height: 80px;
-    letter-spacing: 1px;
-    text-align: center;
-    top: 0;
-    left: 80px;
-  }
-
-  .money-decrition {
-    display: inline-block;
-    width: 115px;
-    white-space: wrap;
-  }
-
-  .money {
-    display: inline-block;
-    width: 115px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    vertical-align: bottom;
-    letter-spacing: 0px;
-    text-align: center;
   }
 
   .pick {
