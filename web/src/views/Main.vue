@@ -15,23 +15,23 @@
         <div class="addButoom">
           <el-button type="primary" @click="dialogFormVisible = true">添加账单</el-button>
           <el-dialog title="添加账单" :visible.sync="dialogFormVisible">
-            <el-form label-width="120px" @submit.native.prevent="addAmount()" :model="form">
-              <el-form-item label="类型:">
+            <el-form label-width="120px" @submit.native.prevent="validateForm('form')" ref="form" :model="form" :rules="rules">
+              <el-form-item label="类型:" prop="type">
                 <el-radio v-model="form.type" label="1">收入</el-radio>
                 <el-radio v-model="form.type" label="0">支出</el-radio>
               </el-form-item>
-              <el-form-item label="时间:">
+              <el-form-item label="时间:" prop="time">
                 <el-date-picker v-model="form.time" type="date" value-format="timestamp" placeholder="选择时间"></el-date-picker>
               </el-form-item>
-              <el-form-item label="分类:">
+              <el-form-item label="分类:" prop="category">
                 <el-select v-model="form.category" placeholder="请选择账单分类">
                   <el-option v-for="item in categroyData" :key="item.name" :label="item.name" :value="item.id">
                   </el-option>
                 </el-select>
               </el-form-item>
-              <el-form-item label="金额:">
+              <el-form-item label="金额:" prop="amount">
                 <el-col :span="7">
-                  <el-input v-model="form.amount" placeholder="请输入金额"></el-input>
+                  <el-input v-model.number="form.amount" placeholder="请输入金额"></el-input>
                 </el-col>
               </el-form-item>
               <el-form-item>
@@ -68,7 +68,7 @@
   }
   @Component({
     name: "Main",
-    components:{
+    components: {
       'qb-card': Card
     }
   })
@@ -84,6 +84,12 @@
       time: '',
       category: "",
       amount: ""
+    };
+    rules: any = {
+      type: [{ required: true, message: '账单类型不能为空', trigger: 'blur' }],
+      time: [{ required: true, message: '账单时间不能为空', trigger: 'blur' }],
+      category: [{ required: true, message: '账单分类不能为空', trigger: 'blur' }],
+      amount: [{ required: true, message: '账单金额不能为空', trigger: 'blur' },{ type: 'number', message: '请输入正确账单金额'}],
     };
     /* -----------------计算属性------------------- */
     get inCome(): number {
@@ -104,7 +110,7 @@
     get allCome(): number {
       return this.inCome - this.outCome;
     }
-  /* -----------------方法------------------- */
+    /* -----------------方法------------------- */
     handleTable(v: Date) {
       if (v === null) {
         return (this.showTableData = this.tableData);
@@ -119,25 +125,35 @@
         return this.formatDate(item).indexOf(yearMon) !== -1;
       });
     }
+    validateForm(form: any): void {
+      let ref: any = this.$refs[form];
+      ref.validate((valid: Boolean) => {
+        if (valid) {
+          this.addAmount();
+        } else {
+          return false;
+        }
+      });
+    }
 
     async addAmount() {
-        const res = await this.$http.post("bill", this.form)
-        if (res.data === 'success') {
-          this.$message.success('添加成功');
-          this.fetchTableData()
-          this.valueMonth = '';
-          this.form = {
-            type: "1",
-            time: '',
-            category: "",
-            amount: ""
-          }
-        } else {
-          this.$message.error(res.data);
+      const res = await this.$http.post("bill", this.form)
+      if (res.data === 'success') {
+        this.$message.success('添加成功');
+        this.fetchTableData()
+        this.valueMonth = '';
+        this.form = {
+          type: "1",
+          time: '',
+          category: "",
+          amount: ""
         }
+      } else {
+        this.$message.error(res.data);
+      }
       this.dialogFormVisible = false;
     }
-  /* -----------------获取属性------------------- */
+    /* -----------------获取属性------------------- */
     async fetchTableData() {
       const resTable = await this.$http.get("bills");
       this.tableData = resTable.data;
